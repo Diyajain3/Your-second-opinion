@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime     @default(now())
+  reviews      Review[]
+  comparisons  Comparison[]
+  feedback     Feedback[]
+}
+
+model Review {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productName         String
+  productLink         String?
+  rawReviewText       String
+  overallSentiment    String?
+  fakeReviewScore     Int?
+  fakeReviewReasoning String?
+  genuinePros         Json?
+  genuineCons         Json?
+  redFlags            Json?
+  honestSummary       String?
+  createdAt           DateTime   @default(now())
+  feedback            Feedback[]
+}
+
+model Comparison {
+  id                 Int        @id @default(autoincrement())
+  userId             Int
+  user               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productAName       String
+  productALink       String?
+  productAReviewText String
+  productBName       String
+  productBLink       String?
+  productBReviewText String
+  winner             String?
+  comparisonSummary  String?
+  productAResult     Json?
+  productBResult     Json?
+  createdAt          DateTime   @default(now())
+  feedback           Feedback[]
+}
+
+model Feedback {
+  id       Int     @id @default(autoincrement())
+  userId   Int
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewId Int?
+  review   Review? @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  comparisonId Int?
+  comparison   Comparison? @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  rating       String?
+  comment      String?
+  createdAt    DateTime    @default(now())
+}
