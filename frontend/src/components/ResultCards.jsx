@@ -1,0 +1,14 @@
+import { Check } from 'lucide-react'
+
+export function Insight({ title, items = [], tone }) {
+  return <div className={`rounded-3xl border p-6 ${tone === 'good' ? 'border-brown/20 bg-brown text-cream' : 'border-ink/10 bg-white/65'}`}><h3 className="font-serif text-2xl font-semibold">{title}</h3><ul className="mt-5 flex flex-col gap-3 text-sm leading-6 opacity-80">{(items.length ? items : ['Nothing conclusive here.']).map((item, i) => <li key={i} className="flex gap-3"><Check size={17} className="mt-1 shrink-0 text-amber" />{item}</li>)}</ul></div>
+}
+
+export function ReviewResult({ data, score }) {
+  const sentiment = data.overallSentiment || 'mixed'
+  return <div className="result-stack"><div className="result-hero"><div><span className="eyebrow !text-cream/60">{data.productName || 'Product review'}</span><h2 className="mt-4 max-w-2xl font-serif text-3xl font-semibold text-cream sm:text-4xl">{data.honestSummary || 'A thoughtful read on this product.'}</h2></div><div className="score"><span>signal</span><strong>{score ?? '—'}<small>%</small></strong></div></div><div className="grid gap-5 md:grid-cols-2"><Insight title="What feels genuine" items={data.genuinePros} tone="good" /><Insight title="Worth keeping in mind" items={data.genuineCons} tone="soft" /></div><div className="paper-card"><div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-serif text-2xl font-semibold">The read at a glance</h3><span className="rounded-full bg-cream px-3 py-1 text-xs capitalize text-brown">{sentiment} sentiment</span></div>{data.fakeReviewReasoning && <p className="mt-5 leading-8 text-ink/65">{data.fakeReviewReasoning}</p>}{data.redFlags?.length > 0 && <div className="mt-6 border-t border-ink/10 pt-5"><p className="text-xs font-semibold uppercase tracking-[.16em] text-amber">Signals to notice</p><ul className="mt-3 flex flex-col gap-2 text-sm text-ink/70">{data.redFlags.map((item, i) => <li key={i} className="flex gap-2"><span className="text-amber">•</span>{item}</li>)}</ul></div>}</div></div>
+}
+
+export function ComparisonResult({ data }) {
+  return <div className="result-stack"><div className="result-hero"><div><span className="eyebrow !text-cream/60">comparison result</span><h2 className="mt-4 font-serif text-3xl font-semibold text-cream sm:text-4xl">{data.winner || 'A closer look at both choices.'}</h2></div><div className="score"><span>decision</span><strong>✓</strong></div></div><div className="paper-card"><h3 className="font-serif text-2xl font-semibold">The short version</h3><p className="mt-5 leading-8 text-ink/65">{data.comparisonSummary || 'Both products have a case to make. Use the details below to decide what matters most to you.'}</p></div><div className="grid gap-5 md:grid-cols-2"><Insight title="Product A" items={data.productAResult ? [data.productAResult] : []} tone="soft" /><Insight title="Product B" items={data.productBResult ? [data.productBResult] : []} tone="soft" /></div></div>
+}
