@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowRight, ClipboardCheck, Scale, ShieldCheck, Sparkles } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Sparkles } from 'lucide-react'
 
 function Step({ number, title, text }) {
   return <div className="border-l border-ink/15 pl-5"><span className="font-mono text-xs tracking-[.2em] text-amber">{number}</span><h2 className="mt-5 font-serif text-2xl font-semibold">{title}</h2><p className="mt-3 text-sm leading-7 text-ink/60">{text}</p></div>

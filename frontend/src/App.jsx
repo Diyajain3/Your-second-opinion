@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
-import { useAuth } from './context/AuthContext'
+import { useAuth } from './context/useAuth'
 import { AppShell } from './components/AppShell'
 import { ProtectedRoute } from './components/RouteParts'
 import LandingPage from './pages/LandingPage'

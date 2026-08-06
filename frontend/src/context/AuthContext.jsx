@@ -1,6 +1,5 @@
-import { createContext, useContext, useMemo, useState } from 'react'
-
-const AuthContext = createContext(null)
+import { useMemo, useState } from 'react'
+import { AuthContext } from './authContext'
 
 function readUser() {
   try { return JSON.parse(sessionStorage.getItem('second-opinion-user')) } catch { return null }
@@ -20,8 +19,4 @@ export function AuthProvider({ children }) {
   }
   const value = useMemo(() => ({ user, signIn, signOut }), [user])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  return useContext(AuthContext)
 }

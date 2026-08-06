@@ -7,6 +7,20 @@ import { AnalysisOverlay, Workspace } from '../components/RouteParts'
 export default function ReviewPage({ setResult }) {
   const [busy, setBusy] = useState(false)
   const navigate = useNavigate()
-  function complete(data) { setResult({ type: 'review', data }); navigate('/result') }
-  return <Workspace eyebrow="01 / Single review" title="Let’s look at this one together." description="Paste the review that made you hesitate. We’ll separate the useful signal from the marketing fog."><ReviewForm onComplete={complete} onBusyChange={setBusy} /><AnimatePresence>{busy && <AnalysisOverlay label="Reading every signal" />}</AnimatePresence></Workspace>
+
+  function complete(data) {
+    setResult({ type: 'review', data })
+    navigate('/result')
+  }
+
+  return (
+    <Workspace
+      eyebrow="01 / Single review"
+      title="Let’s look at this one together."
+      description="Paste the review that made you hesitate. We’ll separate the useful signal from the marketing fog."
+    >
+      <ReviewForm onComplete={complete} onBusyChange={setBusy} />
+      <AnimatePresence>{busy && <AnalysisOverlay label="Reading every signal" />}</AnimatePresence>
+    </Workspace>
+  )
 }
