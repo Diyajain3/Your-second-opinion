@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
+import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,10 +14,17 @@ const PORT = process.env.PORT || 3000;
 const distPath = path.join(__dirname, "dist");
 const indexPath = path.join(distPath, "index.html");
 
+// Auto build dist if missing
 if (!fs.existsSync(indexPath)) {
-  console.error("⚠️ WARNING: dist/index.html not found at:", indexPath);
+  console.log("⚠️ dist/index.html missing. Auto-building dist folder...");
+  try {
+    execSync("npx vite build", { cwd: __dirname, stdio: "inherit" });
+    console.log("✅ Auto build completed successfully!");
+  } catch (e) {
+    console.error("Auto build failed:", e);
+  }
 } else {
-  console.log("✅ dist/index.html located cleanly at:", indexPath);
+  console.log("✅ dist/index.html verified.");
 }
 
 // Serve static assets built by Vite
@@ -32,7 +40,7 @@ app.use((req, res) => {
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    res.status(500).send("Frontend build dist/index.html missing. Please ensure build command runs npm run build.");
+    res.status(500).send("Frontend build in progress. Please refresh in a few seconds.");
   }
 });
 
