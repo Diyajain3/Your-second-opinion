@@ -26,4 +26,9 @@ app.use("/api/feedback",feedbackRoute);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
+  if (!process.env.DATABASE_URL) {
+    console.error("⚠️ WARNING: DATABASE_URL is missing in Railway Variables!");
+  } else {
+    console.log("✅ DATABASE_URL is connected.");
+  }
 });
