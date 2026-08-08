@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, Sparkles, RotateCcw, FileText, Info } from "lucide-react";
+import { ArrowRight, Sparkles, RotateCcw, Info } from "lucide-react";
 import { analyzeReview } from "../api/review";
 
 const initialForm = { productName: "", productLink: "", reviewText: "" };
@@ -67,32 +67,40 @@ export default function ReviewForm({ onComplete, onBusyChange }) {
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <label className="field">
-          Product name
+        <div className="field">
+          <div className="flex items-center justify-between font-bold text-xs text-ink/75 mb-1.5">
+            <span className="flex items-center gap-1">
+              Product name <span className="text-amber font-bold">*</span>
+            </span>
+          </div>
           <input
+            required
             value={form.productName}
             onChange={(e) => setForm({ ...form, productName: e.target.value })}
             placeholder="e.g. Sony WH-1000XM5 Headphones"
           />
-        </label>
+        </div>
 
-        <label className="field">
-          Product link <span className="font-normal text-ink/40">(optional)</span>
+        <div className="field">
+          <div className="flex items-center justify-between font-bold text-xs text-ink/75 mb-1.5">
+            <span>Product link</span>
+            <span className="font-normal text-ink/40">(optional)</span>
+          </div>
           <input
             type="url"
             value={form.productLink}
             onChange={(e) => setForm({ ...form, productLink: e.target.value })}
             placeholder="https://..."
           />
-        </label>
+        </div>
       </div>
 
-      <label className="field">
-        <div className="flex items-center justify-between">
-          <span>
-            Review text <span className="text-amber">*</span>
+      <div className="field">
+        <div className="flex items-center justify-between font-bold text-xs text-ink/75 mb-1.5">
+          <span className="flex items-center gap-1">
+            Review text <span className="text-amber font-bold">*</span>
           </span>
-          <span className="text-xs font-normal text-ink/50">
+          <span className="font-normal text-ink/40">
             {charCount > 0 ? `${charCount} characters` : "Minimum 10 characters"}
           </span>
         </div>
@@ -104,7 +112,7 @@ export default function ReviewForm({ onComplete, onBusyChange }) {
           placeholder="Paste the full customer review or user experience here..."
           className="min-h-[160px]"
         />
-      </label>
+      </div>
 
       <div className="flex items-center gap-2 text-xs text-ink/60 rounded-xl bg-cream/70 p-3 border border-ink/10">
         <Info size={16} className="text-amber shrink-0" />

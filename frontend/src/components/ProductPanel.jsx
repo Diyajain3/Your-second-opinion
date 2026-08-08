@@ -10,32 +10,39 @@ export default function ProductPanel({ label, values, update }) {
         </span>
       </div>
 
-      <label className="field">
-        Product name <span className="text-amber">*</span>
+      <div className="field">
+        <div className="flex items-center justify-between font-bold text-xs text-ink/75 mb-1.5">
+          <span className="flex items-center gap-1">
+            Product name <span className="text-amber font-bold">*</span>
+          </span>
+        </div>
         <input
           required
           value={values.name}
           onChange={(e) => update("name", e.target.value)}
           placeholder="e.g. Ergonomic Mesh Chair"
         />
-      </label>
+      </div>
 
-      <label className="field">
-        Product link <span className="font-normal text-ink/40">(optional)</span>
+      <div className="field">
+        <div className="flex items-center justify-between font-bold text-xs text-ink/75 mb-1.5">
+          <span>Product link</span>
+          <span className="font-normal text-ink/40">(optional)</span>
+        </div>
         <input
           type="url"
           value={values.link}
           onChange={(e) => update("link", e.target.value)}
           placeholder="https://..."
         />
-      </label>
+      </div>
 
-      <label className="field">
-        <div className="flex items-center justify-between">
-          <span>
-            Review text <span className="text-amber">*</span>
+      <div className="field">
+        <div className="flex items-center justify-between font-bold text-xs text-ink/75 mb-1.5">
+          <span className="flex items-center gap-1">
+            Review text <span className="text-amber font-bold">*</span>
           </span>
-          <span className="text-xs font-normal text-ink/50">
+          <span className="font-normal text-ink/40">
             {charCount > 0 ? `${charCount} chars` : "Min 10 chars"}
           </span>
         </div>
@@ -47,7 +54,7 @@ export default function ProductPanel({ label, values, update }) {
           placeholder="Paste user reviews or key product feedback..."
           className="min-h-[140px]"
         />
-      </label>
+      </div>
     </div>
   );
 }
