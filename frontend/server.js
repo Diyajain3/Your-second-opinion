@@ -23,8 +23,6 @@ if (!fs.existsSync(indexPath)) {
   } catch (e) {
     console.error("Auto build failed:", e);
   }
-} else {
-  console.log("✅ dist/index.html verified.");
 }
 
 // Serve static assets built by Vite
@@ -32,7 +30,7 @@ app.use(express.static(distPath));
 
 // Health check endpoint
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", distExists: fs.existsSync(indexPath) });
+  res.json({ status: "ok", distExists: fs.existsSync(indexPath), port: PORT });
 });
 
 // SPA fallback for all client routes (/login, /review, /compare, /history)
@@ -45,5 +43,16 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Frontend production server running on port ${PORT}`);
+  console.log(`Frontend production server listening on port ${PORT}`);
 });
+
+// Fallback dual-port listener if PORT is non-3000
+if (process.env.PORT && String(process.env.PORT) !== "3000") {
+  try {
+    app.listen(3000, "0.0.0.0", () => {
+      console.log(`Frontend fallback listening on port 3000`);
+    });
+  } catch (err) {
+    // Ignored if port 3000 in use
+  }
+}
