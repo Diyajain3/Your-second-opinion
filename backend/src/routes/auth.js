@@ -34,8 +34,8 @@ router.post("/signup",async(req,res)=>
 
     res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name } });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Signup failed" });
+    console.error("Signup error:", err);
+    res.status(500).json({ error: "Signup failed. Please try again." });
   }
   });
 
@@ -47,7 +47,7 @@ router.post("/signup",async(req,res)=>
 
   if(!email || !password)
   {
-    return res.status(400).json({error:"Email and passowrd are required"});
+    return res.status(400).json({error:"Email and password are required"});
   }
    if (!isValidEmail(email)) {
     return res.status(400).json({ error: "Please enter a valid email address" });
@@ -65,12 +65,13 @@ router.post("/signup",async(req,res)=>
            return res.status(401).json({error:"Invalid email or password"})
     }
    
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const secret = process.env.JWT_SECRET || "default_jwt_secret";
+    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "7d" });
 
     res.status(200).json({ token, user: { id: user.id, email: user.email, name: user.name } });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Login failed" });
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Login failed. Please check your credentials or database connection." });
   }
   });
 
