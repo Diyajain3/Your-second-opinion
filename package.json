@@ -1,0 +1,11 @@
+{
+  "name": "second-opinion-root",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "cd frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && node server.js"
+  }
+}
