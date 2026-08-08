@@ -6,19 +6,19 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "start": "serve -s dist -l $PORT",
+    "start": "node server.js",
     "lint": "eslint .",
-    "preview": "serve -s dist -l $PORT"
+    "preview": "node server.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@tailwindcss/vite": "^4.3.3",
+    "express": "^5.2.1",
     "framer-motion": "^13.0.0",
     "lucide-react": "^1.29.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",
-    "serve": "^14.2.4",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
