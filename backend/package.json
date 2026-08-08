@@ -14,9 +14,8 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "postinstall": "prisma generate",
-    "build": "prisma generate && prisma db push",
-    "start": "node src/server.js",
+    "build": "prisma generate",
+    "start": "npx prisma db push && node src/server.js",
     "dev": "node --watch src/server.js"
   },
   "keywords": [],
