@@ -1,0 +1,129 @@
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
+
+function Step({ number, title, text }) {
+  return (
+    <div className="border-l border-ink/15 pl-5">
+      <span className="font-mono text-xs tracking-[.2em] text-amber">
+        {number}
+      </span>
+      <h2 className="mt-5 font-serif text-2xl font-semibold">{title}</h2>
+      <p className="mt-3 text-sm leading-7 text-ink/60">{text}</p>
+    </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <main>
+      <section className="hero mx-auto grid max-w-6xl gap-12 px-5 pb-20 pt-16 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:px-8 lg:pb-28 lg:pt-24">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <p className="eyebrow">
+            <span className="eyebrow-dot" /> Your thoughtful buying companion
+          </p>
+          <h1 className="display mt-5 max-w-3xl">
+            The review <em>behind</em> the review.
+          </h1>
+          <p className="mt-6 max-w-xl text-lg leading-8 text-ink/65">
+            Second Opinion helps you see past the stars. Understand what is
+            genuine, what is noise, and whether something is actually worth your
+            money.
+          </p>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Link className="button button-dark" to="/signup">
+              Find your answer <ArrowRight size={17} />
+            </Link>
+            <a className="button button-light" href="#how-it-works">
+              See how it works
+            </a>
+          </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.15, duration: 0.7 }}
+          className="relative"
+        >
+          <div className="hero-note">
+            <div className="mb-8 flex items-center justify-between">
+              <span className="text-sm font-semibold">Decision brief</span>
+              <span className="rounded-full bg-cream px-3 py-1 text-xs text-brown">
+                just for you
+              </span>
+            </div>
+            <div className="flex items-end gap-4">
+              <div>
+                <span className="text-xs uppercase tracking-[.18em] text-ink/45">
+                  confidence
+                </span>
+                <div className="mt-2 font-serif text-6xl text-brown">
+                  84<span className="text-3xl">%</span>
+                </div>
+              </div>
+              <div className="mb-3 h-16 w-px bg-ink/15" />
+              <p className="mb-2 max-w-42.5 text-sm leading-6 text-ink/65">
+                The signal is stronger than the noise.
+              </p>
+            </div>
+            <div className="mt-8 flex items-center gap-3 border-t border-ink/10 pt-5 text-sm">
+              <ShieldCheck size={18} className="text-amber" />{" "}
+              <span>Built for honest decisions</span>
+            </div>
+          </div>
+          <div className="absolute -bottom-5 -left-4 flex items-center gap-2 rounded-full border border-ink/10 bg-white px-4 py-3 text-sm shadow-lg sm:-left-8">
+            <Sparkles size={15} className="text-amber" /> no more guesswork
+          </div>
+        </motion.div>
+      </section>
+      <section
+        id="how-it-works"
+        className="mx-auto max-w-6xl scroll-mt-24 border-t border-ink/10 px-5 py-20 lg:px-8 lg:py-28"
+      >
+        <div className="mb-14 max-w-xl">
+          <p className="eyebrow">A little more clarity</p>
+          <h2 className="display mt-4 text-5xl">
+            Good decisions need <em>context.</em>
+          </h2>
+        </div>
+        <div className="grid gap-10 md:grid-cols-3">
+          <Step
+            number="01"
+            title="Bring the question"
+            text="Share a product review, a link, or two options you cannot decide between."
+          />
+          <Step
+            number="02"
+            title="We read closer"
+            text="Our analysis looks for language patterns, useful details, missing context, and red flags."
+          />
+          <Step
+            number="03"
+            title="You decide better"
+            text="Get a concise brief with the signal, the trade-offs, and what matters most."
+          />
+        </div>
+      </section>
+      <section className="mx-auto max-w-6xl px-5 pb-20 lg:px-8 lg:pb-28">
+        <div className="rounded-4xl bg-brown px-6 py-12 text-cream sm:px-10 lg:flex lg:items-center lg:justify-between">
+          <div>
+            <p className="eyebrow !text-cream/60">Start with one question</p>
+            <h2 className="mt-4 max-w-xl font-serif text-4xl font-semibold">
+              A second thought can save you from the wrong first choice.
+            </h2>
+          </div>
+          <Link
+            className="button button-cream mt-8 self-start lg:mt-0"
+            to="/signup"
+          >
+            Get your second opinion <ArrowRight size={17} />
+          </Link>
+        </div>
+      </section>
+    </main>
+  );
+}
