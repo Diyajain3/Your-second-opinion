@@ -202,6 +202,16 @@ a {
     transform: rotate(12deg);
   }
 
+  .hero-note {
+    position: relative;
+    border-radius: 2rem;
+    background: #574236;
+    padding: 2.25rem;
+    color: #fffdf9;
+    box-shadow: 0 20px 50px rgba(87, 66, 54, 0.22);
+    border: 1px solid rgba(255, 253, 249, 0.15);
+  }
+
   .paper-card {
     border: 1px solid rgba(30, 29, 27, 0.08);
     border-radius: 1.5rem;
