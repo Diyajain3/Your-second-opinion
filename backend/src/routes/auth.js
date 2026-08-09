@@ -33,8 +33,9 @@ router.post("/signup", async (req, res) => {
 
     res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name } });
   } catch (err) {
-    console.error("Signup error:", err);
-    res.status(500).json({ error: err.message || "Signup failed. Please try again." });
+    console.error("Signup error details:", err);
+    const detailMsg = err?.message || String(err);
+    res.status(500).json({ error: detailMsg });
   }
 });
 
@@ -64,8 +65,9 @@ router.post("/login", async (req, res) => {
 
     res.status(200).json({ token, user: { id: user.id, email: user.email, name: user.name } });
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ error: err.message || "Login failed. Please check your credentials or database connection." });
+    console.error("Login error details:", err);
+    const detailMsg = err?.message || String(err);
+    res.status(500).json({ error: detailMsg });
   }
 });
 
