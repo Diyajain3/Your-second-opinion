@@ -2,7 +2,11 @@ const rawBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const API_BASE = rawBase.replace(/\/+$/, "");
 
 export async function request(path, options = {}) {
-  const token = sessionStorage.getItem("second-opinion-token");
+  // Check localStorage first, fallback to sessionStorage to prevent token loss on mobile tab reloads
+  const token =
+    localStorage.getItem("second-opinion-token") ||
+    sessionStorage.getItem("second-opinion-token");
+    
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
 
   const response = await fetch(`${API_BASE}${cleanPath}`, {

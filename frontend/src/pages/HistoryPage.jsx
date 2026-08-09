@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { History, FileText, Scale, ArrowRight, Calendar, Sparkles, Search, X } from "lucide-react";
+import { History, FileText, Scale, ArrowRight, Calendar, Sparkles, Search, X, Users, User } from "lucide-react";
 import { getUserReviews } from "../api/review";
 import { getUserComparisons } from "../api/comparisons";
 import { Workspace } from "../components/RouteParts";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { formatWinnerName } from "../components/ResultCards";
 
 export default function HistoryPage({ setResult }) {
   const [tab, setTab] = useState("all"); // "all" | "reviews" | "comparisons"
+  const [scope, setScope] = useState("my"); // "my" | "all"
   const [searchQuery, setSearchQuery] = useState("");
   const [reviews, setReviews] = useState([]);
   const [comparisons, setComparisons] = useState([]);
@@ -22,8 +24,8 @@ export default function HistoryPage({ setResult }) {
       setError("");
       try {
         const [revRes, compRes] = await Promise.all([
-          getUserReviews().catch(() => []),
-          getUserComparisons().catch(() => []),
+          getUserReviews(scope).catch(() => []),
+          getUserComparisons(scope).catch(() => []),
         ]);
         setReviews(revRes || []);
         setComparisons(compRes || []);
@@ -34,7 +36,7 @@ export default function HistoryPage({ setResult }) {
       }
     }
     loadData();
-  }, []);
+  }, [scope]);
 
   function handleSelectReview(item) {
     setResult({ type: "review", data: item });
@@ -72,10 +74,46 @@ export default function HistoryPage({ setResult }) {
 
   return (
     <Workspace
-      eyebrow="SAVED ANALYSIS"
-      title="Your second thoughts, remembered."
-      description="Revisit all single product reviews and head-to-head comparisons you have previously analyzed."
+      eyebrow="SAVED ANALYSIS & DECISIONS"
+      title={scope === "my" ? "Your second thoughts, remembered." : "Community decision feed."}
+      description={
+        scope === "my"
+          ? "Revisit all single product reviews and head-to-head comparisons you have previously analyzed."
+          : "Explore real product analyses and comparisons created across the entire community."
+      }
     >
+      {/* Scope Selector: My Decisions vs All Community Reviews */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-amber-50/70 p-3 border border-amber-200">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setScope("my")}
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+              scope === "my"
+                ? "bg-brown text-cream shadow-sm"
+                : "bg-white/80 text-ink/70 hover:bg-white hover:text-ink border border-ink/10"
+            }`}
+          >
+            <User size={14} /> My Saved Decisions
+          </button>
+          <button
+            type="button"
+            onClick={() => setScope("all")}
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+              scope === "all"
+                ? "bg-brown text-cream shadow-sm"
+                : "bg-white/80 text-ink/70 hover:bg-white hover:text-ink border border-ink/10"
+            }`}
+          >
+            <Users size={14} /> All Community Reviews
+          </button>
+        </div>
+
+        <span className="text-xs font-medium text-ink/65">
+          {scope === "my" ? "Showing your private saved decisions" : "Showing all public community reviews & comparisons"}
+        </span>
+      </div>
+
       {/* Controls & Filter bar */}
       <div className="mb-8 flex flex-col gap-4 border-b border-ink/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-cream/70 p-1.5 border border-ink/10">
@@ -105,20 +143,20 @@ export default function HistoryPage({ setResult }) {
           </button>
         </div>
 
-        {/* Search Bar */}
+        {/* Live Search Input */}
         <div className="relative w-full sm:w-64">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/40" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink/40" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search saved analysis..."
-            className="w-full rounded-full border border-ink/15 bg-white/70 pl-9 pr-8 py-1.5 text-xs outline-none focus:border-amber focus:ring-2 focus:ring-amber/20"
+            placeholder="Search by product name..."
+            className="w-full rounded-2xl border border-ink/15 bg-white py-2 pl-9 pr-8 text-xs text-ink placeholder:text-ink/40 focus:border-amber focus:outline-none"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink/40 hover:text-ink"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink/40 hover:text-ink"
             >
               <X size={13} />
             </button>
@@ -126,17 +164,23 @@ export default function HistoryPage({ setResult }) {
         </div>
       </div>
 
-      {loading ? (
-        <div className="paper-card flex flex-col items-center justify-center py-16 text-center">
-          <LoadingSpinner />
-          <p className="mt-4 text-sm font-semibold text-ink/60">Fetching your decision history...</p>
+      {/* Loading state */}
+      {loading && (
+        <div className="py-16 text-center">
+          <LoadingSpinner label="Retrieving your decision history..." />
         </div>
-      ) : error ? (
-        <div className="rounded-2xl bg-red-50 p-6 text-center text-red-700">
-          <p>{error}</p>
+      )}
+
+      {/* Error state */}
+      {error && !loading && (
+        <div className="paper-card border-red-200 bg-red-50 text-red-700 text-center py-8">
+          <p className="text-sm font-semibold">{error}</p>
         </div>
-      ) : (
-        <div className="space-y-8">
+      )}
+
+      {/* Main Content Feed */}
+      {!loading && !error && (
+        <div className="space-y-10">
           {/* Reviews Section */}
           {(tab === "all" || tab === "reviews") && (
             <div>
@@ -150,25 +194,21 @@ export default function HistoryPage({ setResult }) {
                 tab === "reviews" && (
                   <div className="paper-card flex flex-col items-center py-14 text-center">
                     <div className="mb-3 flex size-11 items-center justify-center rounded-2xl bg-amber/20 text-amber">
-                      <History size={22} />
+                      <FileText size={20} />
                     </div>
-                    <h3 className="font-serif text-2xl font-semibold">No reviews is done</h3>
-                    <p className="mt-1.5 max-w-sm text-xs text-ink/60">
-                      Analyze customer reviews to build your saved decision history.
+                    <h3 className="font-serif text-xl font-semibold text-ink">No reviews found</h3>
+                    <p className="mt-1 text-xs text-ink/65 max-w-sm">
+                      {searchQuery
+                        ? `No saved reviews match "${searchQuery}".`
+                        : "Analyze your first product review to see it here."}
                     </p>
-                    <button
-                      onClick={() => navigate("/review")}
-                      className="button button-dark mt-5 !py-2.5 !px-5"
-                    >
-                      Analyze a review <ArrowRight size={15} />
-                    </button>
                   </div>
                 )
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {filteredReviews.map((item) => (
                     <motion.div
-                      key={item.id}
+                      key={`review-${item.id}`}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       onClick={() => handleSelectReview(item)}
@@ -176,7 +216,7 @@ export default function HistoryPage({ setResult }) {
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 border-b border-ink/10 pb-3">
-                          <span className="eyebrow !text-[10px]">Product Review</span>
+                          <span className="eyebrow !text-[10px]">Review</span>
                           {item.fakeReviewScore !== undefined && (
                             <span className="flex items-center gap-1 rounded-lg bg-amber px-2 py-0.5 text-xs font-bold text-white">
                               <Sparkles size={11} /> {item.fakeReviewScore}%
@@ -218,25 +258,21 @@ export default function HistoryPage({ setResult }) {
                 tab === "comparisons" && (
                   <div className="paper-card flex flex-col items-center py-14 text-center">
                     <div className="mb-3 flex size-11 items-center justify-center rounded-2xl bg-amber/20 text-amber">
-                      <Scale size={22} />
+                      <Scale size={20} />
                     </div>
-                    <h3 className="font-serif text-2xl font-semibold">There is no comparison</h3>
-                    <p className="mt-1.5 max-w-sm text-xs text-ink/60">
-                      Compare two products side by side to get evidence-based verdict briefs.
+                    <h3 className="font-serif text-xl font-semibold text-ink">No comparisons found</h3>
+                    <p className="mt-1 text-xs text-ink/65 max-w-sm">
+                      {searchQuery
+                        ? `No saved comparisons match "${searchQuery}".`
+                        : "Compare two products to build your first head-to-head brief."}
                     </p>
-                    <button
-                      onClick={() => navigate("/compare")}
-                      className="button button-dark mt-5 !py-2.5 !px-5"
-                    >
-                      Compare products <ArrowRight size={15} />
-                    </button>
                   </div>
                 )
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {filteredComparisons.map((item) => (
                     <motion.div
-                      key={item.id}
+                      key={`comp-${item.id}`}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       onClick={() => handleSelectComparison(item)}
@@ -246,8 +282,8 @@ export default function HistoryPage({ setResult }) {
                         <div className="flex items-center justify-between gap-2 border-b border-ink/10 pb-3">
                           <span className="eyebrow !text-[10px]">Comparison</span>
                           {item.winner && (
-                            <span className="rounded-full bg-brown px-2.5 py-0.5 text-[10px] font-semibold text-cream">
-                              Verdict: {item.winner}
+                            <span className="rounded-full bg-brown px-2.5 py-0.5 text-[10px] font-semibold text-cream max-w-[180px] truncate" title={formatWinnerName(item.winner, item.productAName || item.productA?.name, item.productBName || item.productB?.name)}>
+                              Verdict: {formatWinnerName(item.winner, item.productAName || item.productA?.name, item.productBName || item.productB?.name)}
                             </span>
                           )}
                         </div>
@@ -280,16 +316,26 @@ export default function HistoryPage({ setResult }) {
               <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-amber/20 text-amber">
                 <History size={24} />
               </div>
-              <h3 className="font-serif text-2xl font-semibold">No reviews is done</h3>
-              <p className="mt-2 max-w-md text-xs text-ink/60">
-                Start by analyzing a product review or comparing two products to build your decision history.
+              <h3 className="font-serif text-2xl font-semibold text-ink">
+                {scope === "my" ? "Your history is empty" : "No community reviews found yet"}
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-ink/65 max-w-md">
+                {scope === "my"
+                  ? "When you run reviews or comparisons, your saved decision briefs will automatically appear here."
+                  : "As users analyze reviews and compare products, all community briefs will appear here."}
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <button onClick={() => navigate("/review")} className="button button-dark !py-2.5 !px-5">
-                  Review a product <ArrowRight size={15} />
+                <button
+                  onClick={() => navigate("/review")}
+                  className="button button-amber !py-2.5 !px-5 !text-xs"
+                >
+                  Analyze a review
                 </button>
-                <button onClick={() => navigate("/compare")} className="button button-light !py-2.5 !px-5">
-                  Compare options <Scale size={15} />
+                <button
+                  onClick={() => navigate("/compare")}
+                  className="button button-dark !py-2.5 !px-5 !text-xs"
+                >
+                  Compare products
                 </button>
               </div>
             </div>

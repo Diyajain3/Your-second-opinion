@@ -6,5 +6,5 @@ export const compareProducts = (products) =>
     body: JSON.stringify(products),
   });
 
-export const getUserComparisons = () =>
-  request("/api/comparisons", { method: "GET" });
+export const getUserComparisons = (scope = "my") =>
+  request(`/api/comparisons?scope=${scope}`, { method: "GET" });
