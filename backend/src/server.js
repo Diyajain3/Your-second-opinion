@@ -15,8 +15,9 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.json({ status: "ok", message: "Second Opinion API is running" });
+// Support both GET and HEAD methods for UptimeRobot monitoring
+app.all("/", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Second Opinion API is running" });
 });
 
 app.use("/api/auth", authRoute);
