@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
-const fallbackDbUrl =
+const rawUrl =
   process.env.DATABASE_URL ||
   "postgresql://postgres:diya3030jain@db.rqlbmopctmvukmfafotl.supabase.co:5432/postgres";
 
@@ -11,6 +11,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: fallbackDbUrl,
+    url: rawUrl,
   },
 });

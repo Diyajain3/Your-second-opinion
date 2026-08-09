@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { execSync } from "child_process";
 import authRoute from "./routes/auth.js";
 import reviewsRoute from "./routes/reviews.js";
 import comparisonsRoute from "./routes/comparisons.js";
@@ -26,9 +27,18 @@ app.use("/api/feedback", feedbackRoute);
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
   if (!process.env.DATABASE_URL) {
-    console.error("⚠️ WARNING: DATABASE_URL is missing in Railway Variables!");
+    console.warn("⚠️ WARNING: DATABASE_URL is missing in environment variables.");
   } else {
     console.log("✅ DATABASE_URL is connected.");
+  }
+
+  // Background schema sync to ensure database tables exist without blocking startup
+  try {
+    console.log("Syncing database schema...");
+    execSync("npx prisma db push --skip-generate", { stdio: "inherit" });
+    console.log("✅ Database schema sync complete!");
+  } catch (err) {
+    console.warn("Schema push warning (non-fatal):", err.message);
   }
 });
 
