@@ -27,7 +27,8 @@
 
 
 <p align="center">
-  <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e43e8152-8e8d-49f6-a489-8584e3957da3" width="100%" />
+  <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/a8c10479-9baa-4c24-8cba-2ff1d528ca11" />
+
 </p>
 
 <p align="center"><em>The live AI analysis preview on the landing page: authenticity scoring, genuine pros, and real trade-offs — before you buy.</em></p>
