@@ -1,11 +1,27 @@
 import express from "express";
 import prisma from "../db/prisma.js";
-import { requireAuth } from "../middleware/requireAuth.js";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-// POST /api/feedback - Save feedback
-router.post("/", requireAuth, async (req, res) => {
+// Helper middleware to extract userId if valid token present, without blocking unauthenticated requests
+function softAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    try {
+      const secret = process.env.JWT_SECRET || "default_jwt_secret";
+      const decoded = jwt.verify(token, secret);
+      req.userId = decoded.userId;
+    } catch (e) {
+      // Ignored if invalid token
+    }
+  }
+  next();
+}
+
+// POST /api/feedback - Save feedback cleanly
+router.post("/", softAuth, async (req, res) => {
   const { reviewId, comparisonId, rating, comment } = req.body;
 
   try {
@@ -18,9 +34,21 @@ router.post("/", requireAuth, async (req, res) => {
     const parsedReviewId = parseId(reviewId);
     const parsedComparisonId = parseId(comparisonId);
 
+    // Verify if userId exists in new database before attaching foreign key
+    let validUserId = null;
+    if (req.userId) {
+      const userExists = await prisma.user.findUnique({
+        where: { id: req.userId },
+        select: { id: true },
+      });
+      if (userExists) {
+        validUserId = userExists.id;
+      }
+    }
+
     const feedback = await prisma.feedback.create({
       data: {
-        userId: req.userId,
+        userId: validUserId,
         reviewId: parsedReviewId,
         comparisonId: parsedComparisonId,
         rating: rating !== undefined && rating !== null ? String(rating) : null,
@@ -28,7 +56,7 @@ router.post("/", requireAuth, async (req, res) => {
       },
     });
 
-    console.log("✅ Feedback saved successfully to database:", feedback.id);
+    console.log("✅ Feedback saved to database with ID:", feedback.id);
     res.status(201).json(feedback);
   } catch (err) {
     console.error("Error saving feedback to database:", err);
@@ -37,8 +65,11 @@ router.post("/", requireAuth, async (req, res) => {
 });
 
 // GET /api/feedback - Get user's feedback history
-router.get("/", requireAuth, async (req, res) => {
+router.get("/", softAuth, async (req, res) => {
   try {
+    if (!req.userId) {
+      return res.json([]);
+    }
     const feedbacks = await prisma.feedback.findMany({
       where: { userId: req.userId },
       orderBy: { createdAt: "desc" },

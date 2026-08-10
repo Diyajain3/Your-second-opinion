@@ -57,8 +57,8 @@ model Comparison {
 
 model Feedback {
   id       Int     @id @default(autoincrement())
-  userId   Int
-  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int?
+  user     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   reviewId Int?
   review   Review? @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
