@@ -25,8 +25,9 @@
 
 <br />
 
+
 <p align="center">
-  <img src="./assets/landing-page.png" alt="Second Opinion landing page — AI product review & fake review analyzer" width="100%" />
+  <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e43e8152-8e8d-49f6-a489-8584e3957da3" width="100%" />
 </p>
 
 <p align="center"><em>The live AI analysis preview on the landing page: authenticity scoring, genuine pros, and real trade-offs — before you buy.</em></p>
