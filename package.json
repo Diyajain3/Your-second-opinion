@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "db:push": "cd backend && npx prisma db push",
     "postinstall": "cd frontend && npm install",
     "build": "cd frontend && npm run build",
     "start": "cd frontend && node server.js"

@@ -96,25 +96,147 @@ Respond in exactly this JSON format:
 }`;
 }
 
-async function callGemini(prompt) {
+async function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function callGroqOrGrok(prompt) {
+  const apiKey =
+    process.env.GROQ_API_KEY ||
+    process.env.GROK_API_KEY ||
+    process.env.XAI_API_KEY;
+  if (!apiKey || !apiKey.trim() || apiKey === "your_grok_key_here") return null;
+
+  const keyTrimmed = apiKey.trim();
+  const isGroqKey = keyTrimmed.startsWith("gsk_");
+  const endpoint = isGroqKey
+    ? "https://api.groq.com/openai/v1/chat/completions"
+    : "https://api.x.ai/v1/chat/completions";
+  const model = isGroqKey ? "llama-3.3-70b-versatile" : "grok-2-latest";
+
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
+    console.log(`Calling ${isGroqKey ? "Groq (Llama 3.3 70B)" : "Grok"} API...`);
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${keyTrimmed}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.2,
+      }),
     });
 
-    return response.text;
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      console.warn(`${isGroqKey ? "Groq" : "Grok"} API non-OK response:`, res.status, errData);
+
+      if (isGroqKey) {
+        return await callGroqInstantFallback(prompt, keyTrimmed);
+      }
+      return null;
+    }
+
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content;
+    if (text) {
+      console.log(`✅ ${isGroqKey ? "Groq" : "Grok"} API responded successfully!`);
+      return text;
+    }
   } catch (err) {
-    throw new Error(`Gemini API Error: ${err.message}`);
+    console.warn("Groq/Grok API call failed:", err.message);
   }
+  return null;
+}
+
+async function callGroqInstantFallback(prompt, keyTrimmed) {
+  try {
+    console.log("Retrying with Groq Llama 3.1 8B instant model...");
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${keyTrimmed}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.2,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (text) {
+        console.log("✅ Groq Llama 3.1 8B responded successfully!");
+        return text;
+      }
+    }
+  } catch (e) {
+    console.warn("Groq fallback model failed:", e.message);
+  }
+  return null;
+}
+
+async function callGemini(prompt) {
+  const modelsToTry = [
+    "gemini-2.0-flash-lite",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash-8b",
+  ];
+  let lastError;
+
+  for (const model of modelsToTry) {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+        });
+        if (response?.text) {
+          return response.text;
+        }
+      } catch (err) {
+        lastError = err;
+        const errStr = String(err.message || err);
+        console.warn(`Gemini attempt ${attempt} on model ${model} failed:`, errStr);
+
+        if (errStr.includes("429") || errStr.includes("RESOURCE_EXHAUSTED")) {
+          if (attempt === 1) {
+            console.log("Rate limited. Waiting 2s before retrying...");
+            await delay(2000);
+            continue;
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  throw new Error(`AI Service Error: ${lastError?.message || "All AI models unavailable"}`);
 }
 
 export async function analyzeReview(reviews) {
   const prompt = buildReviewPrompt(reviews);
-  return callGemini(prompt);
+
+  // 1. Primary AI provider: Groq / Grok
+  const fastAiRes = await callGroqOrGrok(prompt);
+  if (fastAiRes) return fastAiRes;
+
+  // 2. Secondary AI provider: Gemini
+  return await callGemini(prompt);
 }
 
 export async function compareProducts(productA, productB) {
   const prompt = buildComparePrompt(productA, productB);
-  return callGemini(prompt);
+
+  // 1. Primary AI provider: Groq / Grok
+  const fastAiRes = await callGroqOrGrok(prompt);
+  if (fastAiRes) return fastAiRes;
+
+  // 2. Secondary AI provider: Gemini
+  return await callGemini(prompt);
 }

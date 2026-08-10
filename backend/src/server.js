@@ -26,30 +26,10 @@ app.use("/api/comparisons", comparisonsRoute);
 app.use("/api/feedback", feedbackRoute);
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
   if (!process.env.DATABASE_URL) {
     console.warn("⚠️ WARNING: DATABASE_URL is missing in environment variables.");
   } else {
-    console.log("✅ DATABASE_URL is connected.");
-  }
-
-  // Background schema sync to ensure database tables exist without blocking startup
-  try {
-    console.log("Syncing database schema...");
-    execSync("npx prisma db push --skip-generate", { stdio: "inherit" });
-    console.log("✅ Database schema sync complete!");
-  } catch (err) {
-    console.warn("Schema push warning (non-fatal):", err.message);
+    console.log("✅ DATABASE_URL is configured.");
   }
 });
-
-// Dual port fallback listener
-if (process.env.PORT && String(process.env.PORT) !== "5000") {
-  try {
-    app.listen(5000, "0.0.0.0", () => {
-      console.log("Backend fallback listener running on port 5000");
-    });
-  } catch (err) {
-    // Ignored if port 5000 in use
-  }
-}

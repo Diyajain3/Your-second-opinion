@@ -1,7 +1,7 @@
 const rawBase =
   import.meta.env.VITE_API_BASE_URL ||
-  (typeof window !== "undefined" && window.location.hostname !== "localhost"
-    ? "https://your-second-opinion-production.up.railway.app"
+  (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
+    ? "https://your-second-opinion.onrender.com"
     : "http://localhost:5000");
 
 const API_BASE = rawBase.replace(/\/+$/, "");

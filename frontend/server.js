@@ -46,13 +46,3 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`Frontend production server listening on port ${PORT}`);
 });
 
-// Fallback dual-port listener if PORT is non-3000
-if (process.env.PORT && String(process.env.PORT) !== "3000") {
-  try {
-    app.listen(3000, "0.0.0.0", () => {
-      console.log(`Frontend fallback listening on port 3000`);
-    });
-  } catch (err) {
-    // Ignored if port 3000 in use
-  }
-}

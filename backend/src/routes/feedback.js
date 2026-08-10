@@ -2,35 +2,55 @@ import express from "express";
 import prisma from "../db/prisma.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 
-const router=express.Router();
+const router = express.Router();
 
-//POST /api/feedback
+// POST /api/feedback - Save feedback
+router.post("/", requireAuth, async (req, res) => {
+  const { reviewId, comparisonId, rating, comment } = req.body;
 
-router.post("/",requireAuth,async(req,res)=>
-{
-  const {reviewId, comparisonId,rating,comment}=req.body;
+  try {
+    const parseId = (val) => {
+      if (!val) return null;
+      const num = Number(val);
+      return isNaN(num) ? null : num;
+    };
 
-  if(!reviewId && !comparisonId)
-  {
-    return res.status(400).json({error:"Must provide reviewId or comparisonId"})
-  }
+    const parsedReviewId = parseId(reviewId);
+    const parsedComparisonId = parseId(comparisonId);
 
-  try{
-    const feedback=await prisma.feedback.create({
-      data:{
-        userId:req.userId,
-        reviewId:reviewId||null,
-        comparisonId:comparisonId||null,
-        rating,
-        comment
-      }
+    const feedback = await prisma.feedback.create({
+      data: {
+        userId: req.userId,
+        reviewId: parsedReviewId,
+        comparisonId: parsedComparisonId,
+        rating: rating !== undefined && rating !== null ? String(rating) : null,
+        comment: comment ? String(comment).trim() : null,
+      },
     });
+
+    console.log("✅ Feedback saved successfully to database:", feedback.id);
     res.status(201).json(feedback);
+  } catch (err) {
+    console.error("Error saving feedback to database:", err);
+    res.status(500).json({ error: "Failed to save feedback", details: err.message });
   }
-  catch(err)
-  {
-    console.error(err);
-    res.status(500).json({error:"failed to save feedback"});
+});
+
+// GET /api/feedback - Get user's feedback history
+router.get("/", requireAuth, async (req, res) => {
+  try {
+    const feedbacks = await prisma.feedback.findMany({
+      where: { userId: req.userId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        review: { select: { productName: true } },
+        comparison: { select: { productAName: true, productBName: true } },
+      },
+    });
+    res.json(feedbacks);
+  } catch (err) {
+    console.error("Error fetching feedback:", err);
+    res.status(500).json({ error: "Failed to fetch feedback" });
   }
 });
 
