@@ -25,13 +25,15 @@ app.use("/api/reviews", reviewsRoute);
 app.use("/api/comparisons", comparisonsRoute);
 app.use("/api/feedback", feedbackRoute);
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  if (!process.env.DATABASE_URL) {
-    console.warn("⚠️ WARNING: DATABASE_URL is missing in environment variables.");
-  } else {
-    console.log("✅ DATABASE_URL is configured.");
-  }
-});
+if (process.env.VERCEL !== "1") {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    if (!process.env.DATABASE_URL) {
+      console.warn("⚠️ WARNING: DATABASE_URL is missing in environment variables.");
+    } else {
+      console.log("✅ DATABASE_URL is configured.");
+    }
+  });
+}
 
 export default app;
