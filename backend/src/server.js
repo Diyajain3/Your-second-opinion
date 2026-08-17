@@ -33,3 +33,5 @@ app.listen(PORT, "0.0.0.0", () => {
     console.log("✅ DATABASE_URL is configured.");
   }
 });
+
+export default app;
